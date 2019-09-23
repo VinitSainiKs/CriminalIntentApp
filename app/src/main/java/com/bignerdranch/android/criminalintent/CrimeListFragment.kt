@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,11 +22,6 @@ class CrimeListFragment : Fragment() {
         ViewModelProviders.of(this).get(CrimeListViewModel::class.java)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d(TAG, "Total crimes: ${crimeListViewModel.crimes.size}")
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -35,11 +31,12 @@ class CrimeListFragment : Fragment() {
 
         val crimeRecyclerView = view.findViewById<RecyclerView>(R.id.crime_recycler_view)
 
-        val crimes = crimeListViewModel.crimes
-        crimeRecyclerView.adapter = CrimeAdapter(crimes)
-        crimeRecyclerView.layoutManager = LinearLayoutManager(context)
-
-
+        crimeListViewModel.crimeListLiveData.observe(viewLifecycleOwner, Observer { crimes ->
+            crimes?.let {
+                crimeRecyclerView.adapter = CrimeAdapter(it)
+                crimeRecyclerView.layoutManager = LinearLayoutManager(context)
+            }
+        })
         return view
     }
 
